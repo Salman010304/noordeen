@@ -18,18 +18,90 @@
 
     <style>
         :root {
-            --bg-dark: #0f2027;
+            /* --- DEFAULT: ISHA (Midnight Noor) --- */
+            /* Deep Midnight Blue to Soft Glow. Spiritual Silence. */
             --bg-gradient: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             --gold: #D4AF37;
             --gold-light: #F3E5AB;
             --gold-gradient: linear-gradient(45deg, #D4AF37, #F1C40F);
             --white: #ffffff;
-            --glass-bg: rgba(255, 255, 255, 0.08);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --danger: #e74c3c;
-            --warning: #f39c12;
-            --success: #2ecc71;
+            --text-color: #ffffff;
+            --glass-bg: rgba(16, 28, 45, 0.6); /* Darker glass for night */
+            --glass-border: rgba(255, 255, 255, 0.08);
             --nav-bg: rgba(15, 32, 39, 0.95);
+            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            
+            --danger: #ff6b6b;
+            --warning: #feca57;
+            --success: #1dd1a1;
+        }
+
+        /* --- PREMIUM THEME VARIATIONS --- */
+        
+        /* FAJR – "Morning Noor" */
+        /* Ethereal Sky: Pale Gold -> Soft Clouds -> Sky Blue */
+        [data-theme="fajr"] {
+            --bg-gradient: linear-gradient(180deg, #d4fc79 0%, #96e6a1 100%); /* Fallback */
+            --bg-gradient: linear-gradient(to bottom, #89f7fe 0%, #66a6ff 100%); /* Clean Sky Blue */
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); /* Misty Morning */
+            --bg-gradient: linear-gradient(to bottom, #A1C4FD 0%, #C2E9FB 60%, #FFF1EB 100%); /* Perfect Dawn */
+            
+            --text-color: #2d3436; /* Dark slate for contrast on light bg */
+            --white: #2d3436; 
+            --gold: #b08d28; /* Deep elegant gold */
+            --gold-light: #d4ac0d;
+            --gold-gradient: linear-gradient(45deg, #b08d28, #e1b12c);
+            
+            --glass-bg: rgba(255, 255, 255, 0.65); /* Milky glass */
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --nav-bg: rgba(255, 255, 255, 0.95);
+            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        /* ZUHR & ASR – "Imaan Garden" */
+        /* Lush Peace: Deep Emerald -> Soft Sage -> Silver Light */
+        [data-theme="zuhr"] {
+            --bg-gradient: linear-gradient(135deg, #134E5E 0%, #71B280 100%);
+            
+            --text-color: #ffffff;
+            --white: #ffffff;
+            --gold: #F0E68C; /* Softer gold against green */
+            --gold-gradient: linear-gradient(45deg, #F0E68C, #FFFACD);
+            
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --nav-bg: rgba(19, 78, 94, 0.95);
+            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        /* MAGHRIB – "Golden Masjid" */
+        /* Warm Sunset: Deep Purple -> Royal Magenta -> Golden Horizon */
+        [data-theme="maghrib"] {
+            --bg-gradient: linear-gradient(to bottom, #35092d, #8f2d56, #d8695d, #f6b063);
+            
+            --text-color: #fff0f5;
+            --white: #fff0f5;
+            --gold: #FFD700;
+            --gold-gradient: linear-gradient(45deg, #FFD700, #ff9f43);
+            
+            --glass-bg: rgba(50, 10, 40, 0.4);
+            --glass-border: rgba(255, 175, 123, 0.2);
+            --nav-bg: rgba(53, 9, 45, 0.95);
+            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        /* ISHA - "Midnight Noor" (Re-defining for specificity) */
+        [data-theme="isha"] {
+            --bg-gradient: linear-gradient(to bottom, #000428, #004e92);
+            
+            --text-color: #ffffff;
+            --white: #ffffff;
+            --gold: #D4AF37;
+            
+            --glass-bg: rgba(0, 10, 40, 0.5);
+            --glass-border: rgba(100, 200, 255, 0.1);
+            --nav-bg: rgba(0, 4, 40, 0.95);
+            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
         }
 
         * {
@@ -42,11 +114,12 @@
             padding: 0;
             font-family: 'Poppins', sans-serif;
             background: var(--bg-gradient);
-            color: var(--white);
+            color: var(--text-color);
             height: 100vh;
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            transition: background 1.5s ease-in-out, color 0.5s ease;
         }
 
         h1, h2, h3, h4, .arabic-font {
@@ -57,7 +130,7 @@
         /* --- UTILITY CLASSES --- */
         .hidden { display: none !important; }
         .flex-center { display: flex; justify-content: center; align-items: center; }
-        .gold-text { color: var(--gold); }
+        .gold-text { color: var(--gold); text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
         .text-center { text-align: center; }
         .mt-2 { margin-top: 1rem; }
         .mb-2 { margin-bottom: 1rem; }
@@ -104,32 +177,38 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 2500;
             display: flex; justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
         }
         .modal-content {
-            background: #1a262f; border: 1px solid var(--gold);
-            padding: 20px; border-radius: 15px; width: 90%; max-width: 350px;
+            background: var(--nav-bg); 
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.2);
+            padding: 20px; border-radius: 20px; width: 90%; max-width: 350px;
             text-align: center;
+            color: var(--white);
         }
         .reason-grid {
             display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;
         }
         .reason-btn {
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            color: white; padding: 10px; border-radius: 8px; cursor: pointer;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: var(--white); padding: 10px; border-radius: 12px; cursor: pointer;
+            transition: 0.3s;
         }
-        .reason-btn:hover { background: var(--gold); color: black; }
+        .reason-btn:hover { background: var(--gold); color: #1a1a1a; border-color: var(--gold); }
 
         /* --- LOCK SCREEN --- */
         #lock-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-dark); z-index: 3000;
+            background: var(--bg-dark); z-index: 3000; color: white;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: var(--bg-gradient);
         }
         .pin-input {
-            background: transparent; border: 2px solid var(--gold);
+            background: rgba(255,255,255,0.1); border: 2px solid var(--gold);
             color: white; font-size: 2rem; width: 150px; text-align: center;
-            letter-spacing: 10px; padding: 10px; border-radius: 10px; margin-top: 20px;
+            letter-spacing: 10px; padding: 10px; border-radius: 15px; margin-top: 20px;
+            backdrop-filter: blur(5px);
         }
 
         /* --- DATE PICKER --- */
@@ -140,18 +219,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
             z-index: 9;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         .date-input {
-            background: rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.1);
             border: 1px solid var(--gold);
             color: var(--gold);
-            padding: 8px 12px;
+            padding: 6px 12px;
             border-radius: 20px;
             font-family: 'Poppins', sans-serif;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             outline: none;
+            font-weight: 600;
         }
         input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(1) sepia(100%) saturate(100%) hue-rotate(5deg) brightness(1.1);
@@ -162,157 +243,205 @@
         #login-view {
             height: 100%; display: flex; flex-direction: column;
             justify-content: center; align-items: center; position: relative; padding: 20px; z-index: 2;
+            color: white; 
         }
         .moon-logo {
-            font-size: 5rem; color: var(--gold); filter: drop-shadow(0 0 15px var(--gold-light));
-            animation: float 3s ease-in-out infinite; margin-bottom: 20px;
+            font-size: 5rem; color: var(--gold); filter: drop-shadow(0 0 20px var(--gold-light));
+            animation: float 4s ease-in-out infinite; margin-bottom: 20px;
         }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
         .masjid-bg {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 30vh;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%230b181d' fill-opacity='0.6' d='M0,224L60,213.3C120,203,240,181,360,186.7C480,192,600,224,720,218.7C840,213,960,171,1080,160C1200,149,1320,171,1380,181.3L1440,192L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 35vh;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%230b181d' fill-opacity='0.4' d='M0,224L60,213.3C120,203,240,181,360,186.7C480,192,600,224,720,218.7C840,213,960,171,1080,160C1200,149,1320,171,1380,181.3L1440,192L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat; background-position: bottom; background-size: cover; z-index: 1; pointer-events: none;
         }
         .login-inputs { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 15px; z-index: 3; }
         input:not([type="date"]):not(.pin-input) {
-            width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--glass-border);
+            width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
             background: rgba(255, 255, 255, 0.9); font-size: 1rem; outline: none; color: #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         .auth-toggle {
-            margin-top: 15px; font-size: 0.9rem; cursor: pointer; text-decoration: underline; opacity: 0.8;
+            margin-top: 15px; font-size: 0.9rem; cursor: pointer; text-decoration: underline; opacity: 0.9; color: white;
         }
 
         /* --- APP STRUCTURE --- */
         #app-view { display: flex; flex-direction: column; height: 100%; }
         header {
-            padding: 15px 20px; background: rgba(15, 32, 39, 0.9); display: flex;
+            padding: 15px 20px; background: var(--nav-bg); display: flex;
             justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); z-index: 10;
+            transition: background 1s ease;
+            backdrop-filter: blur(10px);
         }
         .user-badge {
-            font-size: 0.75rem; border: 1px solid var(--gold); padding: 4px 10px;
-            border-radius: 12px; color: var(--gold); background: rgba(212, 175, 55, 0.1);
+            font-size: 0.75rem; border: 1px solid var(--gold); padding: 4px 12px;
+            border-radius: 20px; color: var(--gold); background: rgba(212, 175, 55, 0.1);
+            font-weight: 600; letter-spacing: 0.5px;
         }
-        main { flex: 1; overflow-y: auto; position: relative; padding-bottom: 80px; }
-        .page { display: none; padding: 20px; animation: fadeIn 0.4s ease-out; }
+        main { flex: 1; overflow-y: auto; position: relative; padding-bottom: 90px; }
+        .page { display: none; padding: 20px; animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- CARDS & WIDGETS --- */
         .card {
-            background: var(--glass-bg); border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 20px; margin-bottom: 15px; backdrop-filter: blur(5px);
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            color: var(--text-color);
+            border-radius: 20px; 
+            padding: 20px; 
+            margin-bottom: 15px; 
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            box-shadow: var(--card-shadow);
+            transition: background 0.5s ease, border-color 0.5s ease;
         }
+        
         .daily-score-circle {
-            width: 120px; height: 120px; border-radius: 50%;
-            border: 5px solid var(--glass-border); border-top: 5px solid var(--gold);
+            width: 130px; height: 130px; border-radius: 50%;
+            border: 4px solid rgba(255,255,255,0.1); 
+            border-top: 4px solid var(--gold);
+            border-right: 4px solid var(--gold);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            margin: 0 auto 15px; box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+            margin: 10px auto 20px; 
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
+            background: rgba(255,255,255,0.02);
         }
-        .score-val { font-size: 2.5rem; font-weight: 700; line-height: 1; }
-        .score-label { font-size: 0.7rem; opacity: 0.7; }
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .score-val { font-size: 3rem; font-weight: 700; line-height: 1; color: var(--gold); text-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
+        .score-label { font-size: 0.75rem; opacity: 0.8; letter-spacing: 1px; text-transform: uppercase; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .stat-box {
-            background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px;
-            text-align: center; display: flex; flex-direction: column; align-items: center; gap: 5px;
+            background: rgba(255,255,255,0.05); padding: 15px; border-radius: 16px;
+            text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .stat-box i { font-size: 1.5rem; color: var(--gold); }
+        .stat-box i { font-size: 1.6rem; color: var(--gold); margin-bottom: 4px; filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.3)); }
         
         /* --- GRAPHS --- */
         .graph-container {
             display: flex; justify-content: space-between; align-items: flex-end;
-            height: 150px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 10px;
+            height: 160px; padding: 15px; background: rgba(0,0,0,0.05); border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
         .graph-bar {
-            width: 12%; background: var(--gold-gradient); border-radius: 4px 4px 0 0;
-            transition: height 0.5s; position: relative;
+            width: 10%; background: var(--gold-gradient); border-radius: 6px 6px 0 0;
+            transition: height 0.8s cubic-bezier(0.22, 1, 0.36, 1); position: relative;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
         }
         .graph-label {
-            position: absolute; bottom: -20px; width: 100%; text-align: center; font-size: 0.6rem;
+            position: absolute; bottom: -25px; width: 100%; text-align: center; font-size: 0.6rem; color: var(--text-color); opacity: 0.7;
         }
 
         /* --- PRAYER TIMES & RAMADAN --- */
         .prayer-list-item {
-            display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.95rem;
+            display: flex; justify-content: space-between; padding: 12px 5px; 
+            border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 1rem;
         }
         .prayer-list-item:last-child { border-bottom: none; }
-        .ramadan-active { border: 2px solid var(--success); }
+        .ramadan-active { border: 2px solid var(--success); box-shadow: 0 0 15px rgba(46, 204, 113, 0.2); }
 
         /* --- NAMAZ CARDS (Updated) --- */
         .prayer-card {
-            background: var(--glass-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--glass-border);
+            background: var(--glass-bg); padding: 18px; border-radius: 16px; margin-bottom: 12px; 
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
-        .prayer-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .prayer-actions { display: flex; gap: 5px; justify-content: space-between; }
+        .prayer-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .prayer-card h3 { font-size: 1.2rem; margin: 0; color: var(--gold); }
+        
+        .prayer-actions { display: flex; gap: 8px; justify-content: space-between; }
         .action-btn {
-            flex: 1; padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(0,0,0,0.2); color: white; font-size: 0.8rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px;
+            flex: 1; padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.03); color: var(--text-color); font-size: 0.8rem; 
+            cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px;
+            transition: 0.3s;
         }
-        .action-btn:hover { background: rgba(255,255,255,0.1); }
+        .action-btn:active { transform: scale(0.95); }
+        .action-btn i { font-size: 1rem; margin-bottom: 2px; }
         
         .status-display {
-            padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; position: relative;
+            padding: 12px; border-radius: 12px; text-align: center; font-weight: 600; position: relative;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
         }
-        .status-prayed { background: rgba(46, 204, 113, 0.2); border: 1px solid var(--success); color: var(--success); }
-        .status-missed { background: rgba(231, 76, 60, 0.2); border: 1px solid var(--danger); color: var(--danger); }
-        .status-qaza { background: rgba(243, 156, 18, 0.2); border: 1px solid var(--warning); color: var(--warning); }
+        .status-prayed { background: rgba(46, 204, 113, 0.15); border: 1px solid var(--success); color: var(--success); }
+        .status-missed { background: rgba(231, 76, 60, 0.15); border: 1px solid var(--danger); color: var(--danger); }
+        .status-qaza { background: rgba(243, 156, 18, 0.15); border: 1px solid var(--warning); color: var(--warning); }
         
-        .reset-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; opacity: 0.7; }
+        .reset-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; opacity: 0.6; padding: 5px; }
 
         /* --- ACHIEVEMENTS GRID --- */
-        .achievements-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 10px; }
+        .achievements-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px; }
         .achievement-card {
-            background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
-            border-radius: 12px; padding: 15px; text-align: center; transition: all 0.3s;
-            opacity: 0.4; filter: grayscale(1);
+            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+            border-radius: 16px; padding: 20px 10px; text-align: center; transition: all 0.3s;
+            opacity: 0.5; filter: grayscale(1);
         }
         .achievement-card.unlocked {
-            opacity: 1; filter: grayscale(0); background: radial-gradient(circle at center, rgba(212, 175, 55, 0.15), rgba(0,0,0,0.3));
-            border-color: var(--gold); box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+            opacity: 1; filter: grayscale(0); 
+            background: radial-gradient(circle at top, rgba(212, 175, 55, 0.15), transparent 70%);
+            border-color: var(--gold); box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+            transform: translateY(-2px);
         }
-        .achievement-icon { font-size: 2rem; margin-bottom: 8px; color: var(--gold); }
-        .achievement-title { font-size: 0.9rem; font-weight: bold; margin-bottom: 4px; }
-        .achievement-desc { font-size: 0.7rem; color: #ccc; }
+        .achievement-icon { font-size: 2.2rem; margin-bottom: 10px; color: var(--gold); filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.5)); }
+        .achievement-title { font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; color: var(--text-color); }
+        .achievement-desc { font-size: 0.65rem; opacity: 0.7; line-height: 1.3; }
 
         /* --- CHECKLISTS --- */
         .checklist-item {
-            display: flex; align-items: center; padding: 15px; background: var(--glass-bg);
-            margin-bottom: 8px; border-radius: 10px; cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; padding: 16px; background: rgba(255,255,255,0.03);
+            margin-bottom: 10px; border-radius: 12px; cursor: pointer; transition: 0.2s;
+            border: 1px solid transparent;
         }
-        .checklist-item.checked { background: rgba(46, 204, 113, 0.15); border-left: 4px solid var(--success); }
-        .checklist-item i { margin-right: 15px; color: #555; }
+        .checklist-item.checked { background: rgba(46, 204, 113, 0.1); border-color: var(--success); }
+        .checklist-item i { margin-right: 15px; color: rgba(255,255,255,0.3); font-size: 1.2rem; }
         .checklist-item.checked i { color: var(--success); }
 
         /* --- TAWBAH & DUA --- */
         textarea {
-            width: 100%; height: 100px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
-            color: white; padding: 15px; border-radius: 10px; resize: none; font-family: inherit; margin-bottom: 10px;
+            width: 100%; height: 100px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+            color: var(--text-color); padding: 15px; border-radius: 12px; resize: none; font-family: inherit; margin-bottom: 10px;
+            font-size: 0.95rem;
         }
+        textarea:focus { outline: none; border-color: var(--gold); background: rgba(255,255,255,0.08); }
 
         /* --- NAVIGATION --- */
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 70px;
-            background: var(--nav-bg); backdrop-filter: blur(10px); display: flex;
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 80px;
+            background: var(--nav-bg); backdrop-filter: blur(20px); display: flex;
             justify-content: space-around; align-items: center; border-top: 1px solid var(--glass-border); z-index: 100;
+            transition: background 1s ease;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            padding-bottom: 10px;
         }
         .nav-item {
-            background: none; border: none; color: #888; display: flex; flex-direction: column;
-            align-items: center; font-size: 0.7rem; gap: 4px; cursor: pointer; width: 100%;
+            background: none; border: none; color: rgba(255,255,255,0.4); display: flex; flex-direction: column;
+            align-items: center; font-size: 0.75rem; gap: 6px; cursor: pointer; width: 100%;
+            transition: 0.3s;
         }
-        .nav-item i { font-size: 1.3rem; transition: 0.3s; }
-        .nav-item.active { color: var(--gold); }
-        .nav-item.active i { transform: translateY(-2px); text-shadow: 0 0 10px var(--gold); }
+        [data-theme="fajr"] .nav-item { color: rgba(0,0,0,0.4); } /* Dark nav items for light theme */
+        
+        .nav-item i { font-size: 1.4rem; transition: 0.3s; margin-bottom: 2px; }
+        .nav-item.active { color: var(--gold) !important; }
+        .nav-item.active i { transform: translateY(-3px); filter: drop-shadow(0 0 8px var(--gold)); }
 
         /* --- TOAST --- */
         #toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(15, 32, 39, 0.95); border: 1px solid var(--gold); color: var(--white);
-            padding: 15px 25px; border-radius: 15px; z-index: 2000; display: flex; flex-direction: column; align-items: center;
-            text-align: center; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); opacity: 0; pointer-events: none; transition: opacity 0.3s;
-            width: 90%; max-width: 400px; font-size: 1rem; line-height: 1.4;
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            background: rgba(20, 20, 20, 0.9); border: 1px solid var(--gold); color: white;
+            padding: 16px 30px; border-radius: 30px; z-index: 2000; display: flex; flex-direction: column; align-items: center;
+            text-align: center; gap: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 90%; max-width: 400px; font-size: 0.95rem; line-height: 1.5; backdrop-filter: blur(10px);
         }
-        #toast.visible { opacity: 1; pointer-events: auto; }
+        #toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
         
-        .demo-banner { background: var(--gold); color: black; font-size: 0.7rem; text-align: center; padding: 2px; font-weight: bold; }
+        .demo-banner { background: var(--gold); color: black; font-size: 0.7rem; text-align: center; padding: 4px; font-weight: bold; letter-spacing: 1px; }
+
+        /* Theme Description Banner */
+        .theme-desc-banner {
+            font-size: 0.8rem; text-align: center; opacity: 0.7; margin-top: -10px; margin-bottom: 20px; font-style: italic;
+            color: var(--text-color); letter-spacing: 0.5px;
+        }
 
     </style>
 </head>
@@ -330,7 +459,7 @@
                 <div class="reason-btn" onclick="selectReason('Forgot')"><i class="fas fa-question"></i><br>Forgot</div>
                 <div class="reason-btn" onclick="selectReason('Other')"><i class="fas fa-pen"></i><br>Other</div>
             </div>
-            <input type="text" id="other-reason-input" class="hidden" placeholder="Type reason..." style="width:100%; margin-bottom:10px;">
+            <input type="text" id="other-reason-input" class="hidden" placeholder="Type reason..." style="width:100%; margin-bottom:10px; color: #333; padding: 8px; border-radius: 5px;">
             <button class="btn btn-small btn-outline" onclick="closeReasonModal()">Cancel</button>
         </div>
     </div>
@@ -396,7 +525,8 @@
             <!-- 1. DASHBOARD -->
             <div id="page-dashboard" class="page active">
                 
-                <h2 id="dashboard-greeting" style="margin-bottom:15px; font-size:1.4rem; font-family:'Amiri';">Assalamu Alaikum</h2>
+                <h2 id="dashboard-greeting" style="margin-bottom:5px; font-size:1.4rem; font-family:'Amiri';">Assalamu Alaikum</h2>
+                <div id="theme-desc" class="theme-desc-banner">Raat ki khamoshi… aur Rab ke saath tanhai.</div>
 
                 <!-- Hijri Date & Location -->
                 <div class="text-center mb-2" style="font-size: 0.9rem; opacity: 0.9;">
@@ -418,7 +548,7 @@
                     <div id="prayer-times-list">
                         <div style="text-align:center; opacity:0.6;">Updating Times...</div>
                     </div>
-                    <button onclick="fetchPrayerTimes()" style="font-size:0.75rem; width:100%; background:rgba(255,255,255,0.1); border:none; color:white; padding:8px; border-radius:8px; margin-top:10px; cursor:pointer;">
+                    <button onclick="fetchPrayerTimes()" style="font-size:0.75rem; width:100%; background:rgba(255,255,255,0.1); border:none; color:inherit; padding:8px; border-radius:8px; margin-top:10px; cursor:pointer;">
                         <i class="fas fa-sync-alt"></i> Refresh Location & Times
                     </button>
                 </div>
@@ -503,7 +633,6 @@
                         <i class="fas fa-user"></i>
                     </div>
                     
-                    <!-- NEW: Edit Profile Name -->
                     <div style="display:flex; justify-content:center; align-items:center; gap:8px;">
                         <h3 id="profile-name" style="margin:0;">User</h3>
                         <i class="fas fa-pen" onclick="editProfileName()" style="font-size:0.8rem; cursor:pointer; color:var(--gold);"></i>
@@ -511,9 +640,10 @@
 
                     <p class="gold-text" id="profile-rank">Imaan Seed</p>
                     <p>Lifetime Points: <span id="total-points">0</span></p>
-                    <div style="margin-top:10px; display:flex; justify-content:center; gap:10px;">
+                    <div style="margin-top:10px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
                         <button class="btn btn-small btn-outline" onclick="toggleRamadanMode()">🌙 Toggle Ramadan</button>
                         <button class="btn btn-small btn-outline" onclick="toggleLock()">🔒 Set PIN</button>
+                        <button class="btn btn-small btn-outline" onclick="toggleAutoTheme()">🎨 Auto Theme: <span id="auto-theme-status">ON</span></button>
                     </div>
                 </div>
 
@@ -565,6 +695,13 @@
             qaza: "{name}, bas ek namaz aur… Allah tumhe dekh raha hai 🤍"
         };
 
+        const THEMES = {
+            FAJR: { class: 'fajr', desc: "Subah ka noor… Allah ki rehmat ka pehla salaam." },
+            ZUHR: { class: 'zuhr', desc: "Din ke beech Rab ko yaad rakhna… dil ko zinda rakhna." },
+            MAGHRIB: { class: 'maghrib', desc: "Suraj dhal raha hai… rooh Allah ki taraf jhuk rahi hai." },
+            ISHA: { class: 'isha', desc: "Raat ki khamoshi… aur Rab ke saath tanhai." }
+        };
+
         const AKHLAQ_DATA = [
             "Controlled anger", "Did not lie", "Forgave someone", "Helped someone", 
             "Lowered Gaze (Nafs)", "Phone Control (Nafs)", "Music Avoided (Nafs)", "Time Waste Avoided"
@@ -590,14 +727,15 @@
         let db, auth, user, isDemo = true;
         let selectedDate = new Date().toISOString().split('T')[0];
         let isSignUpMode = false;
-        let activePrayerForReason = null; // Stores prayer ID when modal opens
+        let activePrayerForReason = null;
+        let currentThemeClass = ''; 
         
         let appState = { 
             profile: { name: "Muslim", joined: selectedDate },
             lifetimePoints: 0, 
             history: {}, 
             achievements: [], 
-            settings: { ramadan: false, pinEnabled: false, pin: DEFAULT_PIN },
+            settings: { ramadan: false, pinEnabled: false, pin: DEFAULT_PIN, autoTheme: true },
             duas: [],
             prayerTimes: null,
             hijriDate: null
@@ -611,12 +749,18 @@
             const msgIndex = new Date().getDate() % DAILY_MESSAGES.length;
             setText('daily-msg-text', formatMsg(DAILY_MESSAGES[msgIndex]));
 
-            const saved = localStorage.getItem('noorDeenDataV7'); // Version bumped for data structure change
+            const saved = localStorage.getItem('noorDeenDataV8'); 
             if(saved) appState = JSON.parse(saved);
             else ensureDateExists(selectedDate);
 
+            // Ensure settings default
+            if(appState.settings.autoTheme === undefined) appState.settings.autoTheme = true;
+
             if(!appState.prayerTimes || appState.prayerTimes.date !== selectedDate) fetchPrayerTimes();
-            else renderPrayerTimes(appState.prayerTimes);
+            else {
+                renderPrayerTimes(appState.prayerTimes);
+                updateTheme();
+            }
 
             // Firebase / Demo Init
             if (firebaseConfig.apiKey) {
@@ -624,8 +768,6 @@
                     firebase.initializeApp(firebaseConfig);
                     auth = firebase.auth();
                     db = firebase.firestore();
-                    
-                    // Force offline mode immediately if initialization succeeds but cloud is unreachable (handled by catch)
                     db.enablePersistence({ synchronizeTabs: true }).catch(err => console.log("Persistence", err.code));
 
                     isDemo = false;
@@ -646,7 +788,10 @@
                     });
                 } catch(e) { console.log("Firebase Init Error", e); }
             }
-            setInterval(checkPrayerReminders, 60000); 
+            setInterval(() => {
+                checkPrayerReminders();
+                updateTheme();
+            }, 60000); 
         };
 
         // --- AUTH ---
@@ -677,6 +822,7 @@
                     if(!name) { errBox.innerText = "Please enter your name"; return; }
                     const cred = await auth.createUserWithEmailAndPassword(email, pass);
                     appState.profile.name = name;
+                    if(cred.user) await cred.user.updateProfile({ displayName: name });
                     db.collection('users').doc(cred.user.uid).set(appState).catch(e => console.warn(e));
                 } else { await auth.signInWithEmailAndPassword(email, pass); }
             } catch(e) { errBox.innerText = e.message; }
@@ -688,19 +834,13 @@
             auth.signInWithPopup(provider).catch(e => document.getElementById('auth-error').innerText = e.message);
         }
 
-        // --- NEW: EDIT NAME ---
         function editProfileName() {
             const currentName = appState.profile.name;
             const newName = prompt("Enter your new name:", currentName);
             if (newName && newName.trim().length > 0) {
                 appState.profile.name = newName.trim();
-                
-                // Update Firebase Auth profile if connected
-                if(user) {
-                    user.updateProfile({ displayName: newName.trim() }).catch(e => console.log(e));
-                }
-                
-                saveState(); // Saves to local + firestore
+                if(user) user.updateProfile({ displayName: newName.trim() }).catch(e => console.log(e));
+                saveState(); 
                 renderAll();
                 showToast(`Name updated to ${newName.trim()}`);
             }
@@ -710,11 +850,9 @@
         function ensureDateExists(dateStr) {
             if (!appState.history[dateStr]) {
                 appState.history[dateStr] = {
-                    namaz: {}, // Object now: { fajr: {status:'prayed'}, zuhr: {status:'missed', reason:'Slept'} }
-                    quran: 0, akhlaq: [], gunah: "", roza: false, taraweeh: false
+                    namaz: {}, quran: 0, akhlaq: [], gunah: "", roza: false, taraweeh: false
                 };
             }
-            // Migration check: If namaz is Array (Old format), convert to Object
             if(Array.isArray(appState.history[dateStr].namaz)) {
                 const oldArr = appState.history[dateStr].namaz;
                 const newObj = {};
@@ -731,7 +869,6 @@
         function saveState() {
             let total = 0;
             Object.values(appState.history).forEach(day => {
-                // Calculate points
                 const namazCount = Object.values(day.namaz).filter(x => x.status === 'prayed').length;
                 total += (namazCount * 20) + (day.quran * 10) + (day.akhlaq.length * 10);
                 if(day.roza) total += 50;
@@ -739,7 +876,7 @@
             appState.lifetimePoints = total;
             checkAchievements();
 
-            localStorage.setItem('noorDeenDataV7', JSON.stringify(appState));
+            localStorage.setItem('noorDeenDataV8', JSON.stringify(appState));
             if (!isDemo && user && db) {
                  db.collection('users').doc(user.uid).set(appState, { merge: true }).catch(e => console.warn(e));
             }
@@ -763,10 +900,9 @@
                         db.collection('users').doc(user.uid).set(appState).catch(e => console.log(e));
                     }
                 } catch (e) {
-                    console.warn("Offline Mode enabled");
                     isDemo = true; 
-                    showToast("Offline Mode (Database unavailable)");
-                    const saved = localStorage.getItem('noorDeenDataV7');
+                    showToast("Offline Mode");
+                    const saved = localStorage.getItem('noorDeenDataV8');
                     if(saved) appState = JSON.parse(saved);
                 }
             }
@@ -779,14 +915,13 @@
             return template.replace(/{name}/g, name);
         }
 
-        // --- NEW NAMAZ LOGIC ---
+        // --- NAMAZ & ACTIONS ---
         function setNamazStatus(prayerId, status) {
             if(status === 'missed' || status === 'qaza') {
                 activePrayerForReason = prayerId;
-                openReasonModal(status); // Open modal to get reason, logic continues after selection
+                openReasonModal(status); 
                 return; 
             }
-            // For 'prayed', update directly
             updateNamazData(prayerId, 'prayed', null);
         }
 
@@ -797,8 +932,6 @@
                 showToast("Status reset.");
             } else {
                 d.namaz[prayerId] = { status, reason };
-                
-                // Show emotional message
                 let msgTemplate = NAMAZ_MESSAGES[status];
                 let finalMsg = formatMsg(msgTemplate).replace('{prayer}', capitalize(prayerId));
                 showToast(finalMsg);
@@ -806,11 +939,9 @@
             saveState();
         }
 
-        // --- REASON MODAL LOGIC ---
         function openReasonModal(statusType) {
             const modal = document.getElementById('reason-modal');
             modal.classList.remove('hidden');
-            // Store status type in modal dataset to use when reason selected
             modal.dataset.statusType = statusType;
         }
 
@@ -822,25 +953,16 @@
         function selectReason(reason) {
             if(reason === 'Other') {
                 const input = document.getElementById('other-reason-input');
-                if(input.classList.contains('hidden')) {
-                    input.classList.remove('hidden');
-                    return; // Wait for typing
-                }
+                if(input.classList.contains('hidden')) { input.classList.remove('hidden'); return; }
                 reason = input.value || "Other";
-                input.value = "";
-                input.classList.add('hidden');
+                input.value = ""; input.classList.add('hidden');
             }
-            
             const modal = document.getElementById('reason-modal');
             const status = modal.dataset.statusType;
-            
-            if(activePrayerForReason && status) {
-                updateNamazData(activePrayerForReason, status, reason);
-            }
+            if(activePrayerForReason && status) updateNamazData(activePrayerForReason, status, reason);
             closeReasonModal();
         }
 
-        // --- OTHER ACTIONS ---
         function addQuran() {
             const inp = document.getElementById('quran-input');
             const val = parseInt(inp.value);
@@ -880,7 +1002,68 @@
             }
         }
 
-        // --- UI UTILS ---
+        // --- THEMES & TIME ---
+        function toggleAutoTheme() {
+            appState.settings.autoTheme = !appState.settings.autoTheme;
+            setText('auto-theme-status', appState.settings.autoTheme ? "ON" : "OFF");
+            if(appState.settings.autoTheme) updateTheme();
+            else resetTheme();
+            saveState();
+        }
+
+        function resetTheme() {
+            document.body.removeAttribute('data-theme');
+            setText('theme-desc', THEMES.ISHA.desc); // Default
+        }
+
+        function updateTheme() {
+            if(!appState.settings.autoTheme || !appState.prayerTimes) return;
+            
+            const now = new Date();
+            const nowMins = now.getHours() * 60 + now.getMinutes();
+            const pt = appState.prayerTimes;
+            
+            const getMins = (t) => {
+                if(!t) return 0;
+                const [h,m] = t.split(':').map(Number);
+                return h*60 + m;
+            };
+
+            const fajr = getMins(pt.fajr);
+            const zuhr = getMins(pt.dhuhr);
+            const maghrib = getMins(pt.maghrib);
+            const isha = getMins(pt.isha);
+
+            let newTheme = 'isha';
+            let desc = THEMES.ISHA.desc;
+
+            // Logic: Fajr start -> Zuhr start (Morning/Fajr Theme)
+            // Zuhr start -> Maghrib start (Day/Green Theme)
+            // Maghrib start -> Isha start (Sunset/Sand Theme)
+            // Isha start -> Fajr start (Night Theme)
+
+            if (nowMins >= fajr && nowMins < zuhr) {
+                newTheme = 'fajr';
+                desc = THEMES.FAJR.desc;
+            } else if (nowMins >= zuhr && nowMins < maghrib) {
+                newTheme = 'zuhr';
+                desc = THEMES.ZUHR.desc;
+            } else if (nowMins >= maghrib && nowMins < isha) {
+                newTheme = 'maghrib';
+                desc = THEMES.MAGHRIB.desc;
+            } else {
+                newTheme = 'isha'; // Default/Night
+                desc = THEMES.ISHA.desc;
+            }
+
+            if(currentThemeClass !== newTheme) {
+                document.body.setAttribute('data-theme', newTheme);
+                setText('theme-desc', desc);
+                if(currentThemeClass !== '') showToast(formatMsg(`{name}, waqt badla… aur Noor bhi.`));
+                currentThemeClass = newTheme;
+            }
+        }
+
         function toggleRamadanMode() {
             appState.settings.ramadan = !appState.settings.ramadan;
             showToast(appState.settings.ramadan ? "Ramadan Mode ON 🌙" : "Ramadan Mode OFF");
@@ -942,6 +1125,7 @@
                         setText('location-display', `<i class="fas fa-map-marker-alt"></i> ${d.meta.timezone} (Detected)`);
                         saveState();
                         renderPrayerTimes(appState.prayerTimes);
+                        updateTheme();
                         showToast("Prayer times updated 📍");
                     }).catch(err => setText('hijri-date-display', "Offline / Error"));
                 });
@@ -994,8 +1178,8 @@
             setText('stat-namaz', `${namazCount}/5`);
             setText('stat-quran', d.quran);
             setText('total-points', appState.lifetimePoints);
+            setText('auto-theme-status', appState.settings.autoTheme ? "ON" : "OFF");
             
-            // Format dynamic spans
             document.querySelectorAll('.user-name-span').forEach(el => el.innerText = name);
             
             const msgIndex = new Date().getDate() % DAILY_MESSAGES.length;
@@ -1010,7 +1194,6 @@
                 renderPrayerTimes(appState.prayerTimes);
             }
 
-            // RAMADAN
             const ramSec = document.getElementById('ramadan-section');
             if(appState.settings.ramadan) {
                 ramSec.classList.remove('hidden');
@@ -1020,7 +1203,6 @@
                 ramSec.classList.add('hidden');
             }
 
-            // DUA MEMORY
             const duaMem = document.getElementById('dua-memory');
             const oldDua = appState.duas ? appState.duas.find(x => {
                 const diff = (new Date(selectedDate) - new Date(x.date)) / (1000*60*60*24);
@@ -1035,49 +1217,20 @@
         function renderNamazList(d) {
             const list = document.getElementById('namaz-list');
             list.innerHTML = '';
-            
             NAMAZ_LIST.forEach(id => {
-                const record = d.namaz[id]; // { status, reason }
+                const record = d.namaz[id]; 
                 let content = '';
-                
                 if (record) {
-                    // Prayer is tracked
                     let statusClass = '', icon = '', text = '';
                     if (record.status === 'prayed') { statusClass='status-prayed'; icon='fa-check'; text='Prayed'; }
                     else if (record.status === 'missed') { statusClass='status-missed'; icon='fa-times'; text=`Missed (${record.reason})`; }
                     else if (record.status === 'qaza') { statusClass='status-qaza'; icon='fa-hourglass'; text=`Qaza (${record.reason})`; }
                     
-                    content = `
-                        <div class="status-display ${statusClass}">
-                            <i class="fas ${icon}"></i> ${text}
-                            <i class="fas fa-undo reset-icon" onclick="updateNamazData('${id}', 'reset')"></i>
-                        </div>
-                    `;
+                    content = `<div class="status-display ${statusClass}"><i class="fas ${icon}"></i> ${text}<i class="fas fa-undo reset-icon" onclick="updateNamazData('${id}', 'reset')"></i></div>`;
                 } else {
-                    // Prayer not tracked yet
-                    content = `
-                        <div class="prayer-actions">
-                            <div class="action-btn" onclick="setNamazStatus('${id}', 'prayed')">
-                                <i class="fas fa-check gold-text"></i> Prayed
-                            </div>
-                            <div class="action-btn" onclick="setNamazStatus('${id}', 'missed')">
-                                <i class="fas fa-times" style="color:var(--danger)"></i> Missed
-                            </div>
-                            <div class="action-btn" onclick="setNamazStatus('${id}', 'qaza')">
-                                <i class="fas fa-hourglass-half" style="color:var(--warning)"></i> Qaza
-                            </div>
-                        </div>
-                    `;
+                    content = `<div class="prayer-actions"><div class="action-btn" onclick="setNamazStatus('${id}', 'prayed')"><i class="fas fa-check gold-text"></i> Prayed</div><div class="action-btn" onclick="setNamazStatus('${id}', 'missed')"><i class="fas fa-times" style="color:var(--danger)"></i> Missed</div><div class="action-btn" onclick="setNamazStatus('${id}', 'qaza')"><i class="fas fa-hourglass-half" style="color:var(--warning)"></i> Qaza</div></div>`;
                 }
-
-                list.innerHTML += `
-                    <div class="prayer-card">
-                        <div class="prayer-card-header">
-                            <h3 style="margin:0;">${capitalize(id)}</h3>
-                        </div>
-                        ${content}
-                    </div>
-                `;
+                list.innerHTML += `<div class="prayer-card"><div class="prayer-card-header"><h3 style="margin:0;">${capitalize(id)}</h3></div>${content}</div>`;
             });
         }
 
@@ -1087,23 +1240,17 @@
             let quranHtml = '';
             let maxNamaz = 0;
             let bestDay = '';
-            
             for(let i=6; i>=0; i--) {
                 const dt = new Date(today);
                 dt.setDate(today.getDate() - i);
                 const iso = dt.toISOString().split('T')[0];
                 const dayName = dt.toLocaleDateString('en-US', {weekday:'short'});
-                
                 const h = appState.history[iso] || {namaz:{}, quran:0};
-                // Count prayed
                 const count = h.namaz ? Object.values(h.namaz).filter(x => x.status === 'prayed').length : 0;
-                
                 namazHtml += `<div class="graph-bar" style="height:${(count/5)*100}%"><div class="graph-label">${dayName}</div></div>`;
                 quranHtml += `<div class="graph-bar" style="height:${Math.min((h.quran/20)*100,100)}%"><div class="graph-label">${dayName}</div></div>`;
-                
                 if(count + (h.quran/10) > maxNamaz) { maxNamaz = count; bestDay = dayName; }
             }
-            
             document.getElementById('namaz-graph').innerHTML = namazHtml;
             document.getElementById('quran-graph').innerHTML = quranHtml;
             if(bestDay) setText('weekly-report-text', formatMsg(`{name}, is hafte tumhara sabse roshan din ${bestDay} tha 🤍`));
@@ -1114,10 +1261,7 @@
             list.innerHTML = '';
             AKHLAQ_DATA.forEach(item => {
                 const isDone = d.akhlaq.includes(item);
-                list.innerHTML += `
-                    <div class="checklist-item ${isDone ? 'checked' : ''}" onclick="toggleAkhlaq('${item}')">
-                        <i class="fas ${isDone ? 'fa-check-circle' : 'fa-circle'}"></i> <span>${item}</span>
-                    </div>`;
+                list.innerHTML += `<div class="checklist-item ${isDone ? 'checked' : ''}" onclick="toggleAkhlaq('${item}')"><i class="fas ${isDone ? 'fa-check-circle' : 'fa-circle'}"></i> <span>${item}</span></div>`;
             });
         }
 
@@ -1126,12 +1270,7 @@
             list.innerHTML = '';
             ACHIEVEMENTS_META.forEach(badge => {
                 const unlk = appState.achievements && appState.achievements.includes(badge.id);
-                list.innerHTML += `
-                    <div class="achievement-card ${unlk ? 'unlocked' : ''}">
-                        <div class="achievement-icon"><i class="fas ${badge.icon}"></i></div>
-                        <div class="achievement-title">${badge.title}</div>
-                        <div class="achievement-desc">${badge.desc}</div>
-                    </div>`;
+                list.innerHTML += `<div class="achievement-card ${unlk ? 'unlocked' : ''}"><div class="achievement-icon"><i class="fas ${badge.icon}"></i></div><div class="achievement-title">${badge.title}</div><div class="achievement-desc">${badge.desc}</div></div>`;
             });
         }
 
