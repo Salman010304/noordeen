@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Noor Deen Tracker</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #0f2027;
+            --bg-gradient: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            --gold: #D4AF37;
+            --gold-light: #F3E5AB;
+            --gold-gradient: linear-gradient(45deg, #D4AF37, #F1C40F);
+            --white: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --success: #2ecc71;
+            --nav-bg: rgba(15, 32, 39, 0.95);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--white);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1, h2, h3, h4, .arabic-font {
+            font-family: 'Amiri', serif;
+            margin: 0;
+        }
+
+        /* --- UTILITY CLASSES --- */
+        .hidden { display: none !important; }
+        .flex-center { display: flex; justify-content: center; align-items: center; }
+        .gold-text { color: var(--gold); }
+        .text-center { text-align: center; }
+        .mt-2 { margin-top: 1rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .w-100 { width: 100%; }
+
+        /* --- BUTTONS --- */
+        .btn {
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-gold {
+            background: var(--gold-gradient);
+            color: #1a1a1a;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+        }
+        .btn-google {
+            background: white;
+            color: #333;
+            margin-top: 10px;
+        }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        /* --- REASON MODAL --- */
+        #reason-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 2500;
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: #1a262f; border: 1px solid var(--gold);
+            padding: 20px; border-radius: 15px; width: 90%; max-width: 350px;
+            text-align: center;
+        }
+        .reason-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;
+        }
+        .reason-btn {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: white; padding: 10px; border-radius: 8px; cursor: pointer;
+        }
+        .reason-btn:hover { background: var(--gold); color: black; }
+
+        /* --- LOCK SCREEN --- */
+        #lock-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-dark); z-index: 3000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .pin-input {
+            background: transparent; border: 2px solid var(--gold);
+            color: white; font-size: 2rem; width: 150px; text-align: center;
+            letter-spacing: 10px; padding: 10px; border-radius: 10px; margin-top: 20px;
+        }
+
+        /* --- DATE PICKER --- */
+        .date-control-bar {
+            background: var(--glass-bg);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            z-index: 9;
+        }
+        .date-input {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) sepia(100%) saturate(100%) hue-rotate(5deg) brightness(1.1);
+            cursor: pointer;
+        }
+
+        /* --- LOGIN PAGE --- */
+        #login-view {
+            height: 100%; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; position: relative; padding: 20px; z-index: 2;
+        }
+        .moon-logo {
+            font-size: 5rem; color: var(--gold); filter: drop-shadow(0 0 15px var(--gold-light));
+            animation: float 3s ease-in-out infinite; margin-bottom: 20px;
+        }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        .masjid-bg {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 30vh;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%230b181d' fill-opacity='0.6' d='M0,224L60,213.3C120,203,240,181,360,186.7C480,192,600,224,720,218.7C840,213,960,171,1080,160C1200,149,1320,171,1380,181.3L1440,192L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: bottom; background-size: cover; z-index: 1; pointer-events: none;
+        }
+        .login-inputs { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 15px; z-index: 3; }
+        input:not([type="date"]):not(.pin-input) {
+            width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.9); font-size: 1rem; outline: none; color: #333;
+        }
+        .auth-toggle {
+            margin-top: 15px; font-size: 0.9rem; cursor: pointer; text-decoration: underline; opacity: 0.8;
+        }
+
+        /* --- APP STRUCTURE --- */
+        #app-view { display: flex; flex-direction: column; height: 100%; }
+        header {
+            padding: 15px 20px; background: rgba(15, 32, 39, 0.9); display: flex;
+            justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); z-index: 10;
+        }
+        .user-badge {
+            font-size: 0.75rem; border: 1px solid var(--gold); padding: 4px 10px;
+            border-radius: 12px; color: var(--gold); background: rgba(212, 175, 55, 0.1);
+        }
+        main { flex: 1; overflow-y: auto; position: relative; padding-bottom: 80px; }
+        .page { display: none; padding: 20px; animation: fadeIn 0.4s ease-out; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- CARDS & WIDGETS --- */
+        .card {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            border-radius: 16px; padding: 20px; margin-bottom: 15px; backdrop-filter: blur(5px);
+        }
+        .daily-score-circle {
+            width: 120px; height: 120px; border-radius: 50%;
+            border: 5px solid var(--glass-border); border-top: 5px solid var(--gold);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin: 0 auto 15px; box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+        }
+        .score-val { font-size: 2.5rem; font-weight: 700; line-height: 1; }
+        .score-label { font-size: 0.7rem; opacity: 0.7; }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .stat-box {
+            background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px;
+            text-align: center; display: flex; flex-direction: column; align-items: center; gap: 5px;
+        }
+        .stat-box i { font-size: 1.5rem; color: var(--gold); }
+        
+        /* --- GRAPHS --- */
+        .graph-container {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            height: 150px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 10px;
+        }
+        .graph-bar {
+            width: 12%; background: var(--gold-gradient); border-radius: 4px 4px 0 0;
+            transition: height 0.5s; position: relative;
+        }
+        .graph-label {
+            position: absolute; bottom: -20px; width: 100%; text-align: center; font-size: 0.6rem;
+        }
+
+        /* --- PRAYER TIMES & RAMADAN --- */
+        .prayer-list-item {
+            display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.95rem;
+        }
+        .prayer-list-item:last-child { border-bottom: none; }
+        .ramadan-active { border: 2px solid var(--success); }
+
+        /* --- NAMAZ CARDS (Updated) --- */
+        .prayer-card {
+            background: var(--glass-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--glass-border);
+        }
+        .prayer-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .prayer-actions { display: flex; gap: 5px; justify-content: space-between; }
+        .action-btn {
+            flex: 1; padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.2); color: white; font-size: 0.8rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px;
+        }
+        .action-btn:hover { background: rgba(255,255,255,0.1); }
+        
+        .status-display {
+            padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; position: relative;
+        }
+        .status-prayed { background: rgba(46, 204, 113, 0.2); border: 1px solid var(--success); color: var(--success); }
+        .status-missed { background: rgba(231, 76, 60, 0.2); border: 1px solid var(--danger); color: var(--danger); }
+        .status-qaza { background: rgba(243, 156, 18, 0.2); border: 1px solid var(--warning); color: var(--warning); }
+        
+        .reset-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; opacity: 0.7; }
+
+        /* --- ACHIEVEMENTS GRID --- */
+        .achievements-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 10px; }
+        .achievement-card {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
+            border-radius: 12px; padding: 15px; text-align: center; transition: all 0.3s;
+            opacity: 0.4; filter: grayscale(1);
+        }
+        .achievement-card.unlocked {
+            opacity: 1; filter: grayscale(0); background: radial-gradient(circle at center, rgba(212, 175, 55, 0.15), rgba(0,0,0,0.3));
+            border-color: var(--gold); box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+        }
+        .achievement-icon { font-size: 2rem; margin-bottom: 8px; color: var(--gold); }
+        .achievement-title { font-size: 0.9rem; font-weight: bold; margin-bottom: 4px; }
+        .achievement-desc { font-size: 0.7rem; color: #ccc; }
+
+        /* --- CHECKLISTS --- */
+        .checklist-item {
+            display: flex; align-items: center; padding: 15px; background: var(--glass-bg);
+            margin-bottom: 8px; border-radius: 10px; cursor: pointer; transition: 0.2s;
+        }
+        .checklist-item.checked { background: rgba(46, 204, 113, 0.15); border-left: 4px solid var(--success); }
+        .checklist-item i { margin-right: 15px; color: #555; }
+        .checklist-item.checked i { color: var(--success); }
+
+        /* --- TAWBAH & DUA --- */
+        textarea {
+            width: 100%; height: 100px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
+            color: white; padding: 15px; border-radius: 10px; resize: none; font-family: inherit; margin-bottom: 10px;
+        }
+
+        /* --- NAVIGATION --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 70px;
+            background: var(--nav-bg); backdrop-filter: blur(10px); display: flex;
+            justify-content: space-around; align-items: center; border-top: 1px solid var(--glass-border); z-index: 100;
+        }
+        .nav-item {
+            background: none; border: none; color: #888; display: flex; flex-direction: column;
+            align-items: center; font-size: 0.7rem; gap: 4px; cursor: pointer; width: 100%;
+        }
+        .nav-item i { font-size: 1.3rem; transition: 0.3s; }
+        .nav-item.active { color: var(--gold); }
+        .nav-item.active i { transform: translateY(-2px); text-shadow: 0 0 10px var(--gold); }
+
+        /* --- TOAST --- */
+        #toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(15, 32, 39, 0.95); border: 1px solid var(--gold); color: var(--white);
+            padding: 15px 25px; border-radius: 15px; z-index: 2000; display: flex; flex-direction: column; align-items: center;
+            text-align: center; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); opacity: 0; pointer-events: none; transition: opacity 0.3s;
+            width: 90%; max-width: 400px; font-size: 1rem; line-height: 1.4;
+        }
+        #toast.visible { opacity: 1; pointer-events: auto; }
+        
+        .demo-banner { background: var(--gold); color: black; font-size: 0.7rem; text-align: center; padding: 2px; font-weight: bold; }
+
+    </style>
+</head>
+<body>
+
+    <!-- REASON MODAL -->
+    <div id="reason-modal" class="hidden">
+        <div class="modal-content">
+            <h3 class="gold-text"><span class="user-name-span">User</span>, batao…<br>kyun reh gayi?</h3>
+            <div class="reason-grid">
+                <div class="reason-btn" onclick="selectReason('Slept')"><i class="fas fa-bed"></i><br>Slept</div>
+                <div class="reason-btn" onclick="selectReason('Work')"><i class="fas fa-briefcase"></i><br>Work</div>
+                <div class="reason-btn" onclick="selectReason('Travel')"><i class="fas fa-plane"></i><br>Travel</div>
+                <div class="reason-btn" onclick="selectReason('Health')"><i class="fas fa-heartbeat"></i><br>Health</div>
+                <div class="reason-btn" onclick="selectReason('Forgot')"><i class="fas fa-question"></i><br>Forgot</div>
+                <div class="reason-btn" onclick="selectReason('Other')"><i class="fas fa-pen"></i><br>Other</div>
+            </div>
+            <input type="text" id="other-reason-input" class="hidden" placeholder="Type reason..." style="width:100%; margin-bottom:10px;">
+            <button class="btn btn-small btn-outline" onclick="closeReasonModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- LOCK SCREEN -->
+    <div id="lock-screen" class="hidden">
+        <div class="moon-logo"><i class="fas fa-fingerprint"></i></div>
+        <h2>Privacy Lock</h2>
+        <p>Enter PIN to access your Deen</p>
+        <input type="password" id="pin-input" class="pin-input" maxlength="4" placeholder="••••" onkeyup="checkPin(this.value)">
+        <p style="font-size:0.7rem; margin-top:10px; opacity:0.6;">Default: 7860</p>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast">
+        <i class="fas fa-moon gold-text" style="font-size: 1.5rem;"></i> 
+        <span id="toast-msg">Notification</span>
+    </div>
+
+    <!-- Login View -->
+    <section id="login-view">
+        <div class="moon-logo"><i class="fas fa-moon"></i></div>
+        <h1>NOOR DEEN</h1>
+        <p style="opacity: 0.8; margin-bottom: 30px;">Track your Imaan. Grow your Noor.</p>
+
+        <div class="login-inputs">
+            <input type="text" id="fullname" placeholder="Full Name (e.g. Salman)" class="hidden">
+            <input type="email" id="email" placeholder="Email Address">
+            <input type="password" id="password" placeholder="Password">
+            <button class="btn btn-gold" id="auth-btn" onclick="handleAuth()">Login</button>
+            <p id="auth-toggle-text" class="auth-toggle" onclick="toggleAuthMode()">
+                Don't have an account? <b>Sign Up</b>
+            </p>
+            <button class="btn btn-google" onclick="handleGoogleAuth()"><i class="fab fa-google"></i> Continue with Google</button>
+            <p id="auth-error" class="text-center" style="color: var(--danger); font-size: 0.8rem;"></p>
+        </div>
+        <div class="masjid-bg"></div>
+    </section>
+
+    <!-- App View -->
+    <section id="app-view" class="hidden">
+        
+        <div id="demo-banner" class="demo-banner hidden">DEMO MODE - DATA IS LOCAL</div>
+
+        <header>
+            <div class="flex-center" style="gap:10px">
+                <i class="fas fa-mosque gold-text"></i>
+                <span style="font-family:'Amiri'; font-size:1.2rem; font-weight:bold;">Noor Deen</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span id="header-level" class="user-badge">Imaan Seed</span>
+                <i class="fas fa-sign-out-alt" onclick="handleLogout()" style="cursor:pointer; opacity:0.7;"></i>
+            </div>
+        </header>
+
+        <!-- DATE PICKER BAR -->
+        <div class="date-control-bar">
+            <span style="font-size: 0.9rem; opacity: 0.8;">Record For:</span>
+            <input type="date" id="date-picker" class="date-input" onchange="changeDate(this.value)">
+        </div>
+
+        <main>
+            <!-- 1. DASHBOARD -->
+            <div id="page-dashboard" class="page active">
+                
+                <h2 id="dashboard-greeting" style="margin-bottom:15px; font-size:1.4rem; font-family:'Amiri';">Assalamu Alaikum</h2>
+
+                <!-- Hijri Date & Location -->
+                <div class="text-center mb-2" style="font-size: 0.9rem; opacity: 0.9;">
+                    <div id="hijri-date-display" class="gold-text" style="font-weight: bold;">Loading Islamic Date...</div>
+                    <div id="location-display" style="font-size: 0.8rem; opacity: 0.7;"><i class="fas fa-map-marker-alt"></i> Locating...</div>
+                </div>
+
+                <div class="quote-box" style="text-align: center; background: rgba(212, 175, 55, 0.1); padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid var(--gold);">
+                    <h4 class="gold-text" style="font-size: 1rem;"><i class="fas fa-envelope-open-text"></i> Message for <span class="user-name-span">you</span></h4>
+                    <p id="daily-msg-text" style="font-size:0.95rem; margin-top:5px; font-style:italic;">"Loading..."</p>
+                </div>
+
+                <!-- Prayer Times Widget -->
+                <div class="card" style="padding: 15px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+                        <h4 style="margin:0;"><i class="fas fa-clock gold-text"></i> Today's Namaz</h4>
+                        <span id="qibla-dir" style="font-size:0.8rem; color:var(--gold);">Qibla: ...</span>
+                    </div>
+                    <div id="prayer-times-list">
+                        <div style="text-align:center; opacity:0.6;">Updating Times...</div>
+                    </div>
+                    <button onclick="fetchPrayerTimes()" style="font-size:0.75rem; width:100%; background:rgba(255,255,255,0.1); border:none; color:white; padding:8px; border-radius:8px; margin-top:10px; cursor:pointer;">
+                        <i class="fas fa-sync-alt"></i> Refresh Location & Times
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <div class="daily-score-circle">
+                        <span class="score-val" id="score-display">0</span>
+                        <span class="score-label">Deen Score</span>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <i class="fas fa-pray"></i> <span class="stat-val" id="stat-namaz">0/5</span> <span class="stat-label">Namaz</span>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-book-open"></i> <span class="stat-val" id="stat-quran">0</span> <span class="stat-label">Ayahs</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. NAMAZ & RAMADAN -->
+            <div id="page-namaz" class="page">
+                <div id="ramadan-section" class="hidden">
+                    <div class="card ramadan-active">
+                        <h3 class="gold-text text-center">🌙 Ramadan Tracker</h3>
+                        <div style="display:flex; justify-content:space-around; margin-top:10px;">
+                            <button class="btn btn-outline" id="btn-roza" onclick="toggleRamadanAction('roza')">Roza kept?</button>
+                            <button class="btn btn-outline" id="btn-taraweeh" onclick="toggleRamadanAction('taraweeh')">Taraweeh?</button>
+                        </div>
+                    </div>
+                </div>
+
+                <h2>Daily Prayers</h2>
+                <div id="namaz-list"></div>
+            </div>
+
+            <!-- 3. QURAN -->
+            <div id="page-quran" class="page">
+                <h2>Quran Tracker</h2>
+                <div class="card mt-2">
+                    <div class="text-center mb-2"><i class="fas fa-quran" style="font-size:3rem; color:var(--gold);"></i></div>
+                    <p>Enter Ayahs read today:</p>
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <input type="number" id="quran-input" placeholder="e.g. 10" style="flex:1;">
+                        <button class="btn btn-gold" onclick="addQuran()">Log</button>
+                    </div>
+                    <p style="font-size:0.8rem; opacity:0.6; margin-top:10px;">Total: <span id="quran-today-val" class="gold-text">0</span> Ayahs</p>
+                </div>
+                <!-- Growth Graph -->
+                <div class="card">
+                    <h4>Weekly Quran Progress</h4>
+                    <div class="graph-container" id="quran-graph">
+                        <!-- Bars injected via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. DEEDS (Akhlaq + Nafs + Gunah) -->
+            <div id="page-deeds" class="page">
+                <h2>Akhlaq & Nafs Control</h2>
+                <div id="akhlaq-list"></div>
+                
+                <h2 class="mt-2">Tawbah & Dua</h2>
+                <div class="card">
+                    <p>Mistake? Make Tawbah:</p>
+                    <textarea id="sin-input" style="height:60px;" placeholder="I made a mistake..."></textarea>
+                    <button class="btn btn-outline w-100" onclick="saveGunah()">Save & Wipe Sin</button>
+                </div>
+                
+                <div class="card">
+                    <p>Dua Journal:</p>
+                    <textarea id="dua-input" style="height:60px;" placeholder="O Allah, please grant me..."></textarea>
+                    <button class="btn btn-gold w-100" onclick="saveDua()">Save Dua</button>
+                    <div id="dua-memory" style="margin-top:10px; font-size:0.8rem; font-style:italic; color:var(--gold); display:none;"></div>
+                </div>
+            </div>
+
+            <!-- 5. PROFILE & REPORTS -->
+            <div id="page-profile" class="page">
+                <div class="card text-center">
+                    <div style="width:80px; height:80px; background:var(--gold); border-radius:50%; margin:0 auto 10px; display:flex; justify-content:center; align-items:center; color:black; font-size:2rem;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    
+                    <!-- NEW: Edit Profile Name -->
+                    <div style="display:flex; justify-content:center; align-items:center; gap:8px;">
+                        <h3 id="profile-name" style="margin:0;">User</h3>
+                        <i class="fas fa-pen" onclick="editProfileName()" style="font-size:0.8rem; cursor:pointer; color:var(--gold);"></i>
+                    </div>
+
+                    <p class="gold-text" id="profile-rank">Imaan Seed</p>
+                    <p>Lifetime Points: <span id="total-points">0</span></p>
+                    <div style="margin-top:10px; display:flex; justify-content:center; gap:10px;">
+                        <button class="btn btn-small btn-outline" onclick="toggleRamadanMode()">🌙 Toggle Ramadan</button>
+                        <button class="btn btn-small btn-outline" onclick="toggleLock()">🔒 Set PIN</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Weekly Report</h3>
+                    <div id="weekly-report-text" style="margin-bottom:10px; font-size:0.9rem;">Loading stats...</div>
+                    <div class="graph-container" id="namaz-graph">
+                        <!-- Bars injected via JS -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Achievements</h3>
+                    <div class="achievements-grid" id="achievements-list"></div>
+                </div>
+            </div>
+
+        </main>
+
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="navTo('dashboard')"><i class="fas fa-home"></i> <span>Dash</span></button>
+            <button class="nav-item" onclick="navTo('namaz')"><i class="fas fa-mosque"></i> <span>Namaz</span></button>
+            <button class="nav-item" onclick="navTo('quran')"><i class="fas fa-book-open"></i> <span>Quran</span></button>
+            <button class="nav-item" onclick="navTo('deeds')"><i class="fas fa-hand-holding-heart"></i> <span>Deeds</span></button>
+            <button class="nav-item" onclick="navTo('profile')"><i class="fas fa-user-circle"></i> <span>Profile</span></button>
+        </nav>
+
+    </section>
+
+    <script>
+        // --- CONFIG ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyAWuyWrxDavig8hcgTOTFZ1Rqu0J_8X3nw",
+          authDomain: "noordeen-98674.firebaseapp.com",
+          projectId: "noordeen-98674",
+          storageBucket: "noordeen-98674.firebasestorage.app",
+          messagingSenderId: "125791984898",
+          appId: "1:125791984898:web:f3fde9e973997ba2c4761b",
+          measurementId: "G-02QVFFFREN"
+        };
+        const DEFAULT_PIN = "7860";
+
+        // --- CONSTANTS ---
+        const NAMAZ_LIST = ['fajr', 'zuhr', 'asr', 'maghrib', 'isha'];
+        
+        const NAMAZ_MESSAGES = {
+            prayed: "{name}, tumne {prayer} padh li… Allah ki hifazat tumhare saath hai 🤍",
+            missed: "{name}… koi baat nahi… Allah ka darwaza abhi bhi khula hai… qaza padh lo 🕊",
+            qaza: "{name}, bas ek namaz aur… Allah tumhe dekh raha hai 🤍"
+        };
+
+        const AKHLAQ_DATA = [
+            "Controlled anger", "Did not lie", "Forgave someone", "Helped someone", 
+            "Lowered Gaze (Nafs)", "Phone Control (Nafs)", "Music Avoided (Nafs)", "Time Waste Avoided"
+        ];
+
+        const ACHIEVEMENTS_META = [
+            { id: 'deen_warrior', title: 'Deen Warrior', icon: 'fa-shield-halved', desc: '5 Prayers/Day', msg: "SubhanAllah {name}! Deen Warrior unlocked. 🛡" },
+            { id: 'akhlaq_champ', title: 'Akhlaq Champ', icon: 'fa-crown', desc: 'All Deeds Done', msg: "MashaAllah {name}! Akhlaq Champion unlocked. 👑" },
+            { id: 'fajr_hero', title: 'Fajr Hero', icon: 'fa-sun', desc: '5 Days Fajr', msg: "SubhanAllah {name}! Fajr Hero unlocked. 🌟" },
+            { id: 'noor_seeker', title: 'Noor Seeker', icon: 'fa-book-quran', desc: '7 Days Quran', msg: "Alhamdulillah! Noor Seeker unlocked. 📖" },
+            { id: 'ramadan_warrior', title: 'Ramadan Warrior', icon: 'fa-moon', desc: 'Roza & Taraweeh', msg: "Ramadan Mubarak {name}! Warrior status unlocked. 🌙" }
+        ];
+
+        const DAILY_MESSAGES = [
+            "{name}, Allah ne aaj tumhe naya mauka diya hai 🤍",
+            "{name}, sabr ka phal meetha hota hai, aaj gussa mat karna 🌿",
+            "{name}, har mushkil ke saath aasani hai 🛡",
+            "{name}, tumhari ek muskurahat bhi sadqa hai 😊",
+            "{name}, aaj Quran ki kuch ayatein zaroor padhna 📖"
+        ];
+
+        // --- STATE ---
+        let db, auth, user, isDemo = true;
+        let selectedDate = new Date().toISOString().split('T')[0];
+        let isSignUpMode = false;
+        let activePrayerForReason = null; // Stores prayer ID when modal opens
+        
+        let appState = { 
+            profile: { name: "Muslim", joined: selectedDate },
+            lifetimePoints: 0, 
+            history: {}, 
+            achievements: [], 
+            settings: { ramadan: false, pinEnabled: false, pin: DEFAULT_PIN },
+            duas: [],
+            prayerTimes: null,
+            hijriDate: null
+        };
+
+        // --- INIT ---
+        window.onload = function() {
+            document.getElementById('date-picker').max = new Date().toISOString().split('T')[0];
+            document.getElementById('date-picker').value = selectedDate;
+            
+            const msgIndex = new Date().getDate() % DAILY_MESSAGES.length;
+            setText('daily-msg-text', formatMsg(DAILY_MESSAGES[msgIndex]));
+
+            const saved = localStorage.getItem('noorDeenDataV7'); // Version bumped for data structure change
+            if(saved) appState = JSON.parse(saved);
+            else ensureDateExists(selectedDate);
+
+            if(!appState.prayerTimes || appState.prayerTimes.date !== selectedDate) fetchPrayerTimes();
+            else renderPrayerTimes(appState.prayerTimes);
+
+            // Firebase / Demo Init
+            if (firebaseConfig.apiKey) {
+                try {
+                    firebase.initializeApp(firebaseConfig);
+                    auth = firebase.auth();
+                    db = firebase.firestore();
+                    
+                    // Force offline mode immediately if initialization succeeds but cloud is unreachable (handled by catch)
+                    db.enablePersistence({ synchronizeTabs: true }).catch(err => console.log("Persistence", err.code));
+
+                    isDemo = false;
+                    auth.onAuthStateChanged(u => {
+                        if(u) {
+                            user = u;
+                            loadUserData();
+                            if(appState.settings.pinEnabled) document.getElementById('lock-screen').classList.remove('hidden');
+                            else {
+                                document.getElementById('login-view').classList.add('hidden'); 
+                                document.getElementById('app-view').classList.remove('hidden'); 
+                                renderAll();
+                            }
+                        } else {
+                            document.getElementById('login-view').classList.remove('hidden');
+                            document.getElementById('app-view').classList.add('hidden');
+                        }
+                    });
+                } catch(e) { console.log("Firebase Init Error", e); }
+            }
+            setInterval(checkPrayerReminders, 60000); 
+        };
+
+        // --- AUTH ---
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            const nameInput = document.getElementById('fullname');
+            const authBtn = document.getElementById('auth-btn');
+            const toggleText = document.getElementById('auth-toggle-text');
+            if(isSignUpMode) { nameInput.classList.remove('hidden'); authBtn.innerText = "Sign Up"; toggleText.innerHTML = "Already have an account? <b>Login</b>"; }
+            else { nameInput.classList.add('hidden'); authBtn.innerText = "Login"; toggleText.innerHTML = "Don't have an account? <b>Sign Up</b>"; }
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            const name = document.getElementById('fullname').value;
+            const errBox = document.getElementById('auth-error');
+
+            if(isDemo) {
+                appState.profile.name = name || "Demo User";
+                document.getElementById('login-view').classList.add('hidden'); 
+                document.getElementById('app-view').classList.remove('hidden'); 
+                renderAll();
+                return;
+            }
+            try {
+                if(isSignUpMode) {
+                    if(!name) { errBox.innerText = "Please enter your name"; return; }
+                    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+                    appState.profile.name = name;
+                    db.collection('users').doc(cred.user.uid).set(appState).catch(e => console.warn(e));
+                } else { await auth.signInWithEmailAndPassword(email, pass); }
+            } catch(e) { errBox.innerText = e.message; }
+        }
+
+        function handleGoogleAuth() {
+            if(isDemo) { handleAuth(); return; }
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch(e => document.getElementById('auth-error').innerText = e.message);
+        }
+
+        // --- NEW: EDIT NAME ---
+        function editProfileName() {
+            const currentName = appState.profile.name;
+            const newName = prompt("Enter your new name:", currentName);
+            if (newName && newName.trim().length > 0) {
+                appState.profile.name = newName.trim();
+                
+                // Update Firebase Auth profile if connected
+                if(user) {
+                    user.updateProfile({ displayName: newName.trim() }).catch(e => console.log(e));
+                }
+                
+                saveState(); // Saves to local + firestore
+                renderAll();
+                showToast(`Name updated to ${newName.trim()}`);
+            }
+        }
+
+        // --- DATA LOGIC ---
+        function ensureDateExists(dateStr) {
+            if (!appState.history[dateStr]) {
+                appState.history[dateStr] = {
+                    namaz: {}, // Object now: { fajr: {status:'prayed'}, zuhr: {status:'missed', reason:'Slept'} }
+                    quran: 0, akhlaq: [], gunah: "", roza: false, taraweeh: false
+                };
+            }
+            // Migration check: If namaz is Array (Old format), convert to Object
+            if(Array.isArray(appState.history[dateStr].namaz)) {
+                const oldArr = appState.history[dateStr].namaz;
+                const newObj = {};
+                oldArr.forEach(p => newObj[p] = { status: 'prayed' });
+                appState.history[dateStr].namaz = newObj;
+            }
+        }
+
+        function getDayData(dateStr) {
+            ensureDateExists(dateStr);
+            return appState.history[dateStr];
+        }
+
+        function saveState() {
+            let total = 0;
+            Object.values(appState.history).forEach(day => {
+                // Calculate points
+                const namazCount = Object.values(day.namaz).filter(x => x.status === 'prayed').length;
+                total += (namazCount * 20) + (day.quran * 10) + (day.akhlaq.length * 10);
+                if(day.roza) total += 50;
+            });
+            appState.lifetimePoints = total;
+            checkAchievements();
+
+            localStorage.setItem('noorDeenDataV7', JSON.stringify(appState));
+            if (!isDemo && user && db) {
+                 db.collection('users').doc(user.uid).set(appState, { merge: true }).catch(e => console.warn(e));
+            }
+            renderAll();
+        }
+        
+        async function loadUserData() {
+            if(!isDemo && user && db) {
+                try {
+                    const doc = await db.collection('users').doc(user.uid).get();
+                    if(doc.exists) {
+                        const data = doc.data();
+                        appState.profile = data.profile || appState.profile;
+                        appState.lifetimePoints = data.lifetimePoints || 0;
+                        appState.history = data.history || {};
+                        appState.achievements = data.achievements || [];
+                        appState.settings = data.settings || appState.settings;
+                        appState.duas = data.duas || [];
+                    } else {
+                        if(user.displayName) appState.profile.name = user.displayName;
+                        db.collection('users').doc(user.uid).set(appState).catch(e => console.log(e));
+                    }
+                } catch (e) {
+                    console.warn("Offline Mode enabled");
+                    isDemo = true; 
+                    showToast("Offline Mode (Database unavailable)");
+                    const saved = localStorage.getItem('noorDeenDataV7');
+                    if(saved) appState = JSON.parse(saved);
+                }
+            }
+            ensureDateExists(selectedDate);
+            renderAll();
+        }
+
+        function formatMsg(template) {
+            const name = appState.profile.name || "Brother";
+            return template.replace(/{name}/g, name);
+        }
+
+        // --- NEW NAMAZ LOGIC ---
+        function setNamazStatus(prayerId, status) {
+            if(status === 'missed' || status === 'qaza') {
+                activePrayerForReason = prayerId;
+                openReasonModal(status); // Open modal to get reason, logic continues after selection
+                return; 
+            }
+            // For 'prayed', update directly
+            updateNamazData(prayerId, 'prayed', null);
+        }
+
+        function updateNamazData(prayerId, status, reason) {
+            const d = getDayData(selectedDate);
+            if(status === 'reset') {
+                delete d.namaz[prayerId];
+                showToast("Status reset.");
+            } else {
+                d.namaz[prayerId] = { status, reason };
+                
+                // Show emotional message
+                let msgTemplate = NAMAZ_MESSAGES[status];
+                let finalMsg = formatMsg(msgTemplate).replace('{prayer}', capitalize(prayerId));
+                showToast(finalMsg);
+            }
+            saveState();
+        }
+
+        // --- REASON MODAL LOGIC ---
+        function openReasonModal(statusType) {
+            const modal = document.getElementById('reason-modal');
+            modal.classList.remove('hidden');
+            // Store status type in modal dataset to use when reason selected
+            modal.dataset.statusType = statusType;
+        }
+
+        function closeReasonModal() {
+            document.getElementById('reason-modal').classList.add('hidden');
+            activePrayerForReason = null;
+        }
+
+        function selectReason(reason) {
+            if(reason === 'Other') {
+                const input = document.getElementById('other-reason-input');
+                if(input.classList.contains('hidden')) {
+                    input.classList.remove('hidden');
+                    return; // Wait for typing
+                }
+                reason = input.value || "Other";
+                input.value = "";
+                input.classList.add('hidden');
+            }
+            
+            const modal = document.getElementById('reason-modal');
+            const status = modal.dataset.statusType;
+            
+            if(activePrayerForReason && status) {
+                updateNamazData(activePrayerForReason, status, reason);
+            }
+            closeReasonModal();
+        }
+
+        // --- OTHER ACTIONS ---
+        function addQuran() {
+            const inp = document.getElementById('quran-input');
+            const val = parseInt(inp.value);
+            if(val > 0) {
+                getDayData(selectedDate).quran = val;
+                inp.value = '';
+                showToast(formatMsg(`{name}, ${val} ayahs recorded! 📖`));
+                saveState();
+            }
+        }
+
+        function toggleAkhlaq(item) {
+            const d = getDayData(selectedDate);
+            if(d.akhlaq.includes(item)) d.akhlaq = d.akhlaq.filter(x => x !== item);
+            else { d.akhlaq.push(item); showToast("Good deed recorded! 🤍"); }
+            saveState();
+        }
+
+        function saveGunah() {
+            const txt = document.getElementById('sin-input');
+            if(txt.value.trim()) {
+                getDayData(selectedDate).gunah = txt.value;
+                txt.value = '';
+                showToast(formatMsg("{name}, Allah loves those who repent. Sin wiped. 🕊"));
+                saveState();
+            }
+        }
+
+        function saveDua() {
+            const txt = document.getElementById('dua-input');
+            if(txt.value.trim()) {
+                if(!appState.duas) appState.duas = [];
+                appState.duas.push({ date: selectedDate, text: txt.value });
+                txt.value = '';
+                showToast("Dua saved in your journal 🤲");
+                saveState();
+            }
+        }
+
+        // --- UI UTILS ---
+        function toggleRamadanMode() {
+            appState.settings.ramadan = !appState.settings.ramadan;
+            showToast(appState.settings.ramadan ? "Ramadan Mode ON 🌙" : "Ramadan Mode OFF");
+            saveState();
+        }
+
+        function toggleRamadanAction(type) {
+            const d = getDayData(selectedDate);
+            d[type] = !d[type];
+            showToast(d[type] ? `MashaAllah! ${type} recorded.` : `${type} removed.`);
+            saveState();
+        }
+
+        function toggleLock() {
+            const pin = prompt("Enter new 4-digit PIN (or cancel to disable):");
+            if(pin && pin.length === 4) {
+                appState.settings.pinEnabled = true;
+                appState.settings.pin = pin;
+                showToast("App Locked with PIN 🔒");
+            } else {
+                appState.settings.pinEnabled = false;
+                showToast("Lock Disabled");
+            }
+            saveState();
+        }
+
+        function checkPin(val) {
+            if(val === appState.settings.pin) {
+                document.getElementById('lock-screen').classList.add('hidden');
+                if(isDemo) { document.getElementById('login-view').classList.add('hidden'); document.getElementById('app-view').classList.remove('hidden'); } 
+                else if(user) { document.getElementById('login-view').classList.add('hidden'); document.getElementById('app-view').classList.remove('hidden'); renderAll(); }
+            }
+        }
+
+        function fetchPrayerTimes() {
+            if (navigator.geolocation) {
+                setText('location-display', 'Getting GPS location...');
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const long = position.coords.longitude;
+                    
+                    const y = Math.sin(39.8262 - long) * Math.cos(21.4225);
+                    const x = Math.cos(lat)*Math.sin(21.4225) - Math.sin(lat)*Math.cos(21.4225)*Math.cos(39.8262 - long);
+                    let brng = Math.atan2(y, x) * 180 / Math.PI;
+                    brng = (brng + 360) % 360; 
+                    setText('qibla-dir', `Qibla: ${Math.round(brng)}°`);
+
+                    const ts = Math.floor(Date.now()/1000);
+                    const api = `https://api.aladhan.com/v1/timings/${ts}?latitude=${lat}&longitude=${long}&method=2`;
+                    
+                    fetch(api).then(res => res.json()).then(data => {
+                        const d = data.data;
+                        appState.prayerTimes = {
+                            date: new Date().toISOString().split('T')[0],
+                            fajr: d.timings.Fajr, dhuhr: d.timings.Dhuhr, asr: d.timings.Asr, maghrib: d.timings.Maghrib, isha: d.timings.Isha,
+                            hijri: `${d.date.hijri.day} ${d.date.hijri.month.en} ${d.date.hijri.year} AH`,
+                            meta: d.meta
+                        };
+                        setText('location-display', `<i class="fas fa-map-marker-alt"></i> ${d.meta.timezone} (Detected)`);
+                        saveState();
+                        renderPrayerTimes(appState.prayerTimes);
+                        showToast("Prayer times updated 📍");
+                    }).catch(err => setText('hijri-date-display', "Offline / Error"));
+                });
+            } else { showToast("Geolocation not supported"); }
+        }
+
+        function renderPrayerTimes(pt) {
+            if(!pt) return;
+            setText('hijri-date-display', pt.hijri);
+            const list = document.getElementById('prayer-times-list');
+            list.innerHTML = '';
+            const times = [ { n: 'Fajr', t: pt.fajr }, { n: 'Zuhr', t: pt.dhuhr }, { n: 'Asr', t: pt.asr }, { n: 'Maghrib', t: pt.maghrib }, { n: 'Isha', t: pt.isha } ];
+            times.forEach(item => {
+                list.innerHTML += `<div class="prayer-list-item"><span>${item.n}</span><span class="gold-text" style="font-weight:bold;">${formatTime12(item.t)}</span></div>`;
+            });
+        }
+
+        function formatTime12(time24) {
+            if(!time24) return "--";
+            let [h, m] = time24.split(':');
+            let ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12; h = h ? h : 12;
+            return `${h}:${m} ${ampm}`;
+        }
+
+        function checkPrayerReminders() {
+            if(!appState.prayerTimes || appState.prayerTimes.date !== selectedDate) return;
+            const now = new Date();
+            const nowTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            const pt = appState.prayerTimes;
+            const msgMap = {
+                [pt.fajr]: "{name}… Fajr ka waqt ho gaya hai… Allah tumhara intezar kar raha hai 🌙",
+                [pt.dhuhr]: "{name}… Zuhr ka waqt ho gaya hai ☀️",
+                [pt.asr]: "{name}… bas 5 minute… Asr nikalne wali hai… 🕌",
+                [pt.maghrib]: "{name}… Maghrib ka waqt ho gaya hai 🌅",
+                [pt.isha]: "{name}… Isha ka waqt ho gaya hai 🌌"
+            };
+            if(msgMap[nowTime]) showToast(formatMsg(msgMap[nowTime]));
+        }
+
+        // --- RENDER ---
+        function renderAll() {
+            const d = getDayData(selectedDate);
+            const name = appState.profile.name || "User";
+            const namazCount = Object.values(d.namaz).filter(x => x.status === 'prayed').length;
+
+            setText('dashboard-greeting', `Assalamu Alaikum, ${name}`);
+            setText('profile-name', name);
+            setText('score-display', (namazCount*20)+(d.quran*10)+(d.akhlaq.length*10)+(d.roza?50:0));
+            setText('stat-namaz', `${namazCount}/5`);
+            setText('stat-quran', d.quran);
+            setText('total-points', appState.lifetimePoints);
+            
+            // Format dynamic spans
+            document.querySelectorAll('.user-name-span').forEach(el => el.innerText = name);
+            
+            const msgIndex = new Date().getDate() % DAILY_MESSAGES.length;
+            setText('daily-msg-text', formatMsg(DAILY_MESSAGES[msgIndex]));
+            
+            renderNamazList(d);
+            renderAkhlaqList(d);
+            renderAchievements();
+            renderGraphs();
+            
+            if(selectedDate === new Date().toISOString().split('T')[0] && appState.prayerTimes) {
+                renderPrayerTimes(appState.prayerTimes);
+            }
+
+            // RAMADAN
+            const ramSec = document.getElementById('ramadan-section');
+            if(appState.settings.ramadan) {
+                ramSec.classList.remove('hidden');
+                document.getElementById('btn-roza').style.background = d.roza ? 'var(--gold)' : 'transparent';
+                document.getElementById('btn-taraweeh').style.background = d.taraweeh ? 'var(--gold)' : 'transparent';
+            } else {
+                ramSec.classList.add('hidden');
+            }
+
+            // DUA MEMORY
+            const duaMem = document.getElementById('dua-memory');
+            const oldDua = appState.duas ? appState.duas.find(x => {
+                const diff = (new Date(selectedDate) - new Date(x.date)) / (1000*60*60*24);
+                return diff >= 14 && diff <= 16;
+            }) : null;
+            if(oldDua) {
+                duaMem.style.display = 'block';
+                duaMem.innerText = formatMsg(`{name}, 15 din pehle tumne ye dua ki thi: "${oldDua.text}" 🤍`);
+            } else { duaMem.style.display = 'none'; }
+        }
+
+        function renderNamazList(d) {
+            const list = document.getElementById('namaz-list');
+            list.innerHTML = '';
+            
+            NAMAZ_LIST.forEach(id => {
+                const record = d.namaz[id]; // { status, reason }
+                let content = '';
+                
+                if (record) {
+                    // Prayer is tracked
+                    let statusClass = '', icon = '', text = '';
+                    if (record.status === 'prayed') { statusClass='status-prayed'; icon='fa-check'; text='Prayed'; }
+                    else if (record.status === 'missed') { statusClass='status-missed'; icon='fa-times'; text=`Missed (${record.reason})`; }
+                    else if (record.status === 'qaza') { statusClass='status-qaza'; icon='fa-hourglass'; text=`Qaza (${record.reason})`; }
+                    
+                    content = `
+                        <div class="status-display ${statusClass}">
+                            <i class="fas ${icon}"></i> ${text}
+                            <i class="fas fa-undo reset-icon" onclick="updateNamazData('${id}', 'reset')"></i>
+                        </div>
+                    `;
+                } else {
+                    // Prayer not tracked yet
+                    content = `
+                        <div class="prayer-actions">
+                            <div class="action-btn" onclick="setNamazStatus('${id}', 'prayed')">
+                                <i class="fas fa-check gold-text"></i> Prayed
+                            </div>
+                            <div class="action-btn" onclick="setNamazStatus('${id}', 'missed')">
+                                <i class="fas fa-times" style="color:var(--danger)"></i> Missed
+                            </div>
+                            <div class="action-btn" onclick="setNamazStatus('${id}', 'qaza')">
+                                <i class="fas fa-hourglass-half" style="color:var(--warning)"></i> Qaza
+                            </div>
+                        </div>
+                    `;
+                }
+
+                list.innerHTML += `
+                    <div class="prayer-card">
+                        <div class="prayer-card-header">
+                            <h3 style="margin:0;">${capitalize(id)}</h3>
+                        </div>
+                        ${content}
+                    </div>
+                `;
+            });
+        }
+
+        function renderGraphs() {
+            const today = new Date();
+            let namazHtml = '';
+            let quranHtml = '';
+            let maxNamaz = 0;
+            let bestDay = '';
+            
+            for(let i=6; i>=0; i--) {
+                const dt = new Date(today);
+                dt.setDate(today.getDate() - i);
+                const iso = dt.toISOString().split('T')[0];
+                const dayName = dt.toLocaleDateString('en-US', {weekday:'short'});
+                
+                const h = appState.history[iso] || {namaz:{}, quran:0};
+                // Count prayed
+                const count = h.namaz ? Object.values(h.namaz).filter(x => x.status === 'prayed').length : 0;
+                
+                namazHtml += `<div class="graph-bar" style="height:${(count/5)*100}%"><div class="graph-label">${dayName}</div></div>`;
+                quranHtml += `<div class="graph-bar" style="height:${Math.min((h.quran/20)*100,100)}%"><div class="graph-label">${dayName}</div></div>`;
+                
+                if(count + (h.quran/10) > maxNamaz) { maxNamaz = count; bestDay = dayName; }
+            }
+            
+            document.getElementById('namaz-graph').innerHTML = namazHtml;
+            document.getElementById('quran-graph').innerHTML = quranHtml;
+            if(bestDay) setText('weekly-report-text', formatMsg(`{name}, is hafte tumhara sabse roshan din ${bestDay} tha 🤍`));
+        }
+
+        function renderAkhlaqList(d) {
+            const list = document.getElementById('akhlaq-list');
+            list.innerHTML = '';
+            AKHLAQ_DATA.forEach(item => {
+                const isDone = d.akhlaq.includes(item);
+                list.innerHTML += `
+                    <div class="checklist-item ${isDone ? 'checked' : ''}" onclick="toggleAkhlaq('${item}')">
+                        <i class="fas ${isDone ? 'fa-check-circle' : 'fa-circle'}"></i> <span>${item}</span>
+                    </div>`;
+            });
+        }
+
+        function renderAchievements() {
+            const list = document.getElementById('achievements-list');
+            list.innerHTML = '';
+            ACHIEVEMENTS_META.forEach(badge => {
+                const unlk = appState.achievements && appState.achievements.includes(badge.id);
+                list.innerHTML += `
+                    <div class="achievement-card ${unlk ? 'unlocked' : ''}">
+                        <div class="achievement-icon"><i class="fas ${badge.icon}"></i></div>
+                        <div class="achievement-title">${badge.title}</div>
+                        <div class="achievement-desc">${badge.desc}</div>
+                    </div>`;
+            });
+        }
+
+        function checkAchievements() {
+            if(!appState.achievements) appState.achievements = [];
+            const d = getDayData(selectedDate);
+            const count = Object.values(d.namaz).filter(x => x.status === 'prayed').length;
+            if(count === 5 && !hasBadge('deen_warrior')) unlockBadge('deen_warrior');
+            if(d.akhlaq.length >= 6 && !hasBadge('akhlaq_champ')) unlockBadge('akhlaq_champ');
+            if(d.roza && d.taraweeh && !hasBadge('ramadan_warrior')) unlockBadge('ramadan_warrior');
+        }
+
+        function hasBadge(id) { return appState.achievements.includes(id); }
+        function unlockBadge(id) {
+            appState.achievements.push(id);
+            showToast(formatMsg(ACHIEVEMENTS_META.find(x => x.id === id).msg));
+        }
+
+        function changeDate(v) { if(v) { selectedDate = v; renderAll(); } }
+        function setText(id, txt) { const el = document.getElementById(id); if(el) el.innerHTML = txt; }
+        function handleLogout() { if(!isDemo && auth) auth.signOut(); else location.reload(); }
+        function showToast(msg) { const t=document.getElementById('toast'); document.getElementById('toast-msg').innerText=msg; t.classList.add('visible'); setTimeout(()=>t.classList.remove('visible'),4000); }
+        function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+        function navTo(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`page-${page}`).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            const map = {'dashboard':0, 'namaz':1, 'quran':2, 'deeds':3, 'profile':4};
+            document.querySelectorAll('.nav-item')[map[page]].classList.add('active');
+        }
+
+    </script>
+</body>
+</html>
